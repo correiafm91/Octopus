@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        /* Base Styles */
         body {
             background: linear-gradient(135deg, #0f172a, #1e3a8a, #1e40af);
             min-height: 100vh;
@@ -14,42 +15,49 @@
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
         }
+
+        /* UI Components */
         .futuristic-bg {
             background: rgba(255,255,255,0.05);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
         }
+
         .tool-card {
             transition: all 0.3s ease;
             transform: perspective(1000px) rotateX(0deg);
         }
+
         .tool-card:hover {
             transform: perspective(1000px) rotateX(-5deg) scale(1.05);
             box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
+
         .glowing-border {
             border: 2px solid transparent;
             background: linear-gradient(45deg, transparent, rgba(59,130,246,0.3), transparent);
             background-clip: padding-box;
             box-shadow: 0 0 15px rgba(59,130,246,0.3);
         }
+
         .loading-text {
             animation: pulse 1.5s infinite;
         }
+
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-blue-900 via-blue-950 to-black">
+<body>
     <!-- Loading Screen -->
-    <div id="loading-screen" class="fixed inset-0 bg-gradient-to-br from-blue-900 via-blue-950 to-black flex flex-col items-center justify-center">
+    <div id="loading-screen" class="fixed inset-0 bg-gradient-to-br from-blue-900 via-blue-950 to-black flex flex-col items-center justify-center z-50">
         <img src="https://via.placeholder.com/200" alt="OctopusTools Logo" class="w-32 h-32 rounded-full mb-4 animate-pulse">
         <h1 class="text-3xl font-bold mb-4">OctopusTools</h1>
         <div class="text-xl mb-4 loading-text">Só um momento</div>
         <div class="w-3/4 max-w-md bg-white/20 rounded-full h-4 overflow-hidden">
-            <div id="loading-bar" class="bg-blue-500 h-full"></div>
+            <div id="loading-bar" class="bg-blue-500 h-full w-0 transition-all duration-1000"></div>
         </div>
     </div>
 
@@ -118,7 +126,7 @@
     </div>
 
     <script>
-        // Updated Tool Categories
+        // Data Module
         const toolCategories = [
             {
                 category: 'Prospecção',
@@ -157,12 +165,16 @@
                         name: 'Assistente IA', 
                         icon: 'fa-brain',
                         link: 'https://chromewebstore.google.com/detail/browsergpt-seu-assistente/njggknpmkjapgklcfhaiigafiiebpchm?hl=pt-BR'
+                    },
+                    { 
+                        name: 'ChatGPT', 
+                        icon: 'fa-comments',
+                        link: 'https://openai.com/index/chatgpt/'
                     }
                 ]
             }
         ];
 
-        // Tutorial steps
         const tutorialSteps = [
             { 
                 selector: '#search-input', 
@@ -178,141 +190,164 @@
             }
         ];
 
-        // DOM Elements
-        const loadingScreen = document.getElementById('loading-screen');
-        const loadingBar = document.getElementById('loading-bar');
-        const mainPlatform = document.getElementById('main-platform');
-        const tutorialOverlay = document.getElementById('tutorial-overlay');
-        const toolsContainer = document.getElementById('tools-container');
-        const searchInput = document.getElementById('search-input');
-        const searchResults = document.getElementById('search-results');
-        const accountToggle = document.getElementById('account-toggle');
-        const accountModal = document.getElementById('account-modal');
-
-        // Loading Progress
-        let progress = 0;
-        const loadingInterval = setInterval(() => {
-            progress += 11.11;
-            loadingBar.style.width = `${progress}%`;
-            
-            if (progress >= 100) {
-                clearInterval(loadingInterval);
-                loadingScreen.classList.add('hidden');
-                startTutorial();
+        // Loading Module
+        const LoadingModule = {
+            init(onComplete) {
+                const loadingScreen = document.getElementById('loading-screen');
+                const loadingBar = document.getElementById('loading-bar');
+                const mainPlatform = document.getElementById('main-platform');
+                
+                let progress = 0;
+                const loadingInterval = setInterval(() => {
+                    progress += 11.11;
+                    loadingBar.style.width = `${progress}%`;
+                    
+                    if (progress >= 100) {
+                        clearInterval(loadingInterval);
+                        setTimeout(() => {
+                            loadingScreen.classList.add('hidden');
+                            mainPlatform.classList.remove('hidden');
+                            if (onComplete) onComplete();
+                        }, 500);
+                    }
+                }, 300);
             }
-        }, 1000);
+        };
 
-        // Render Tools
-        function renderTools() {
-            toolsContainer.innerHTML = toolCategories.map(category => `
-                <div class="bg-white/10 rounded-xl p-6 futuristic-bg tool-card glowing-border">
-                    <h2 class="text-2xl font-bold mb-4">${category.category}</h2>
-                    <div class="space-y-4">
-                        ${category.items.map(tool => `
-                            <a href="${tool.link}" target="_blank" class="flex items-center hover:bg-white/20 p-2 rounded transition">
-                                <i class="fas ${tool.icon} mr-4"></i>
-                                ${tool.name}
-                            </a>
-                        `).join('')}
+        // Tools Module
+        const ToolsModule = {
+            render(container) {
+                container.innerHTML = toolCategories.map(category => `
+                    <div class="bg-white/10 rounded-xl p-6 futuristic-bg tool-card glowing-border">
+                        <h2 class="text-2xl font-bold mb-4">${category.category}</h2>
+                        <div class="space-y-4">
+                            ${category.items.map(tool => `
+                                <a href="${tool.link}" target="_blank" class="flex items-center hover:bg-white/20 p-2 rounded transition">
+                                    <i class="fas ${tool.icon} mr-4"></i>
+                                    ${tool.name}
+                                </a>
+                            `).join('')}
+                        </div>
                     </div>
-                </div>
-            `).join('');
-        }
-
-        // Search Functionality
-        function performSearch() {
-            const query = searchInput.value.toLowerCase();
-            const allTools = toolCategories.flatMap(category => 
-                category.items.map(tool => ({...tool, category: category.category}))
-            );
-
-            const matchedTools = allTools.filter(tool => 
-                tool.name.toLowerCase().includes(query) || 
-                tool.category.toLowerCase().includes(query)
-            );
-
-            if (query && matchedTools.length > 0) {
-                searchResults.innerHTML = matchedTools.map(tool => `
-                    <a href="${tool.link}" target="_blank" class="block p-2 hover:bg-white/10">
-                        <i class="fas ${tool.icon} mr-2"></i>
-                        ${tool.name} (${tool.category})
-                    </a>
                 `).join('');
-                searchResults.classList.remove('hidden');
-            } else {
-                searchResults.classList.add('hidden');
             }
-        }
+        };
 
-        // Account Modal Toggle
-        accountToggle.addEventListener('click', () => {
-            accountModal.classList.toggle('hidden');
-        });
+        // Search Module
+        const SearchModule = {
+            init(searchInput, searchResults) {
+                const performSearch = () => {
+                    const query = searchInput.value.toLowerCase();
+                    const allTools = toolCategories.flatMap(category => 
+                        category.items.map(tool => ({...tool, category: category.category}))
+                    );
 
-        // Search Event Listener
-        searchInput.addEventListener('input', performSearch);
-        searchInput.addEventListener('focus', performSearch);
-        
-        // Hide search results when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-                searchResults.classList.add('hidden');
+                    const matchedTools = allTools.filter(tool => 
+                        tool.name.toLowerCase().includes(query) || 
+                        tool.category.toLowerCase().includes(query)
+                    );
+
+                    if (query && matchedTools.length > 0) {
+                        searchResults.innerHTML = matchedTools.map(tool => `
+                            <a href="${tool.link}" target="_blank" class="block p-2 hover:bg-white/10">
+                                <i class="fas ${tool.icon} mr-2"></i>
+                                ${tool.name} (${tool.category})
+                            </a>
+                        `).join('');
+                        searchResults.classList.remove('hidden');
+                    } else {
+                        searchResults.classList.add('hidden');
+                    }
+                };
+
+                searchInput.addEventListener('input', performSearch);
+                searchInput.addEventListener('focus', performSearch);
+
+                document.addEventListener('click', (e) => {
+                    if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                        searchResults.classList.add('hidden');
+                    }
+                });
             }
-        });
+        };
 
-        // Tutorial Logic
-        let currentTutorialStep = 0;
-        const tutorialTitle = document.getElementById('tutorial-title');
-        const tutorialText = document.getElementById('tutorial-text');
-        const tutorialPrev = document.getElementById('tutorial-prev');
-        const tutorialNext = document.getElementById('tutorial-next');
+        // Tutorial Module
+        const TutorialModule = {
+            currentStep: 0,
 
-        function startTutorial() {
-            tutorialOverlay.classList.remove('hidden');
-            updateTutorialStep();
-        }
+            init() {
+                const tutorialOverlay = document.getElementById('tutorial-overlay');
+                const tutorialText = document.getElementById('tutorial-text');
+                const tutorialPrev = document.getElementById('tutorial-prev');
+                const tutorialNext = document.getElementById('tutorial-next');
 
-        function updateTutorialStep() {
-            // Reset previous highlights
-            document.querySelectorAll('.tutorial-highlight').forEach(el => {
-                el.classList.remove('tutorial-highlight');
+                const updateStep = () => {
+                    document.querySelectorAll('.tutorial-highlight').forEach(el => {
+                        el.classList.remove('tutorial-highlight');
+                    });
+
+                    const currentStep = tutorialSteps[this.currentStep];
+                    const targetElement = document.querySelector(currentStep.selector);
+                    
+                    if (targetElement) {
+                        targetElement.classList.add('tutorial-highlight');
+                    }
+
+                    tutorialText.textContent = currentStep.text;
+                    tutorialPrev.classList.toggle('hidden', this.currentStep === 0);
+                    tutorialNext.textContent = this.currentStep === tutorialSteps.length - 1 
+                        ? 'Concluir' 
+                        : 'Próximo';
+                };
+
+                tutorialPrev.addEventListener('click', () => {
+                    if (this.currentStep > 0) {
+                        this.currentStep--;
+                        updateStep();
+                    }
+                });
+
+                tutorialNext.addEventListener('click', () => {
+                    if (this.currentStep < tutorialSteps.length - 1) {
+                        this.currentStep++;
+                        updateStep();
+                    } else {
+                        tutorialOverlay.classList.add('hidden');
+                    }
+                });
+
+                tutorialOverlay.classList.remove('hidden');
+                updateStep();
+            }
+        };
+
+        // Account Module
+        const AccountModule = {
+            init(toggleButton, modal) {
+                toggleButton.addEventListener('click', () => {
+                    modal.classList.toggle('hidden');
+                });
+            }
+        };
+
+        // Main Application
+        document.addEventListener('DOMContentLoaded', () => {
+            const mainPlatform = document.getElementById('main-platform');
+            const toolsContainer = document.getElementById('tools-container');
+            const searchInput = document.getElementById('search-input');
+            const searchResults = document.getElementById('search-results');
+            const accountToggle = document.getElementById('account-toggle');
+            const accountModal = document.getElementById('account-modal');
+
+            // Initialize loading screen
+            LoadingModule.init(() => {
+                ToolsModule.render(toolsContainer);
+                TutorialModule.init();
             });
 
-            const currentStep = tutorialSteps[currentTutorialStep];
-            const targetElement = document.querySelector(currentStep.selector);
-            
-            // Add highlight
-            if (targetElement) {
-                targetElement.classList.add('tutorial-highlight');
-            }
-
-            // Update tutorial text
-            tutorialText.textContent = currentStep.text;
-
-            // Manage navigation buttons
-            tutorialPrev.classList.toggle('hidden', currentTutorialStep === 0);
-            tutorialNext.textContent = currentTutorialStep === tutorialSteps.length - 1 
-                ? 'Concluir' 
-                : 'Próximo';
-        }
-
-        tutorialPrev.addEventListener('click', () => {
-            if (currentTutorialStep > 0) {
-                currentTutorialStep--;
-                updateTutorialStep();
-            }
-        });
-
-        tutorialNext.addEventListener('click', () => {
-            if (currentTutorialStep < tutorialSteps.length - 1) {
-                currentTutorialStep++;
-                updateTutorialStep();
-            } else {
-                // End tutorial
-                tutorialOverlay.classList.add('hidden');
-                mainPlatform.classList.remove('hidden');
-                renderTools();
-            }
+            // Initialize other modules
+            SearchModule.init(searchInput, searchResults);
+            AccountModule.init(accountToggle, accountModal);
         });
     </script>
 </body>
