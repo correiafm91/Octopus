@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Octopus Suite - Business Tools Platform</title>
+    <title>Octopus Suite - Plataforma de Ferramentas para Negócios</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -77,6 +77,29 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
         }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+        }
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 500px;
+        }
         @media (max-width: 768px) {
             .tool-card {
                 margin-bottom: 1rem;
@@ -85,16 +108,14 @@
                 margin: 0.5rem;
             }
         }
-        .language-selector {
-            position: fixed;
-            top: 20px;
-            right: 100px;
-            z-index: 1000;
-        }
         #search-results {
             max-height: 300px;
             overflow-y: auto;
             z-index: 1000;
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
         }
         .search-result-item {
             padding: 0.5rem 1rem;
@@ -109,21 +130,35 @@
 <body>
     <!-- Loading Screen -->
     <div id="loading-screen" class="fixed inset-0 bg-gradient-to-br from-blue-900 via-blue-950 to-black flex flex-col items-center justify-center z-50">
-        <img src="https://i.postimg.cc/j2cBtbHC/A-2-D-minimalist-logo-a-purple-octopus-vivid-purples-and-deep-ultraviolet-hues-holding-a-laptop-dis.png" alt="Octopus Suite Logo" class="w-32 h-32 rounded-full mb-4 animate-pulse">
+        <img src="https://i.postimg.cc/HkNLXPDx/Captura-de-tela-2024-12-19-230742.png" alt="Octopus Suite Logo" class="w-32 h-32 rounded-full mb-4 animate-pulse">
         <h1 class="text-3xl font-bold mb-4">Octopus Suite</h1>
-        <div class="text-xl mb-4 loading-text" data-i18n="loading">Loading...</div>
+        <div class="text-xl mb-4 loading-text">Carregando...</div>
         <div class="w-3/4 max-w-md bg-white/20 rounded-full h-4 overflow-hidden">
             <div id="loading-bar" class="bg-blue-500 h-full w-0 transition-all duration-1000"></div>
         </div>
     </div>
 
-    <!-- Language Selector -->
-    <div class="language-selector">
-        <select id="language-select" class="bg-white/10 text-white px-4 py-2 rounded-lg">
-            <option value="en">English</option>
-            <option value="es">Español</option>
-            <option value="it">Italiano</option>
-        </select>
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-2xl font-bold mb-4">Login</h2>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label for="username" class="block text-sm font-medium">Usuário</label>
+                    <input type="text" id="username" required
+                        class="w-full bg-white/10 rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium">Senha</label>
+                    <input type="password" id="password" required
+                        class="w-full bg-white/10 rounded px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button type="submit" 
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Entrar
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Notification -->
@@ -135,21 +170,23 @@
     <div id="main-platform" class="hidden min-h-screen">
         <header class="p-4 flex justify-between items-center futuristic-bg">
             <div class="flex items-center">
-                <img src="https://i.postimg.cc/j2cBtbHC/A-2-D-minimalist-logo-a-purple-octopus-vivid-purples-and-deep-ultraviolet-hues-holding-a-laptop-dis.png" alt="Octopus Suite Logo" class="w-16 h-16 rounded-full">
+                <img src="https://i.postimg.cc/HkNLXPDx/Captura-de-tela-2024-12-19-230742.png" alt="Octopus Suite Logo" class="w-16 h-16 rounded-full">
                 <h1 class="ml-4 text-2xl font-bold">Octopus Suite</h1>
             </div>
             <div class="relative w-1/2">
-                <input type="text" id="search-input" data-i18n-placeholder="searchTools" 
+                <input type="text" id="search-input"
                     class="w-full bg-white/10 px-4 py-2 rounded-full text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Search tools...">
-                <div id="search-results" class="absolute top-full left-0 w-full bg-white/10 backdrop-blur-lg rounded-b-xl mt-1 hidden"></div>
+                    placeholder="Pesquisar ferramentas...">
+                <div id="search-results" class="hidden absolute w-full"></div>
             </div>
             <div id="user-profile" class="hidden flex items-center gap-4">
-                <img src="" alt="Profile" id="user-avatar" class="w-10 h-10 rounded-full cursor-pointer">
                 <span id="user-name" class="text-white"></span>
+                <button id="logout-btn" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded">
+                    Sair
+                </button>
             </div>
-            <button id="account-toggle" class="bg-white/10 p-2 rounded-full hover:bg-white/20">
-                <i class="fas fa-user"></i>
+            <button id="login-btn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">
+                Entrar
             </button>
         </header>
 
@@ -160,7 +197,7 @@
 
             <!-- Tool History -->
             <div id="tool-history" class="mt-12 bg-white/10 rounded-xl p-6 futuristic-bg">
-                <h2 class="text-2xl font-bold mb-4" data-i18n="toolHistory">Tool History</h2>
+                <h2 class="text-2xl font-bold mb-4">Histórico de Ferramentas</h2>
                 <div id="history-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <!-- History items will be inserted here -->
                 </div>
@@ -168,21 +205,21 @@
 
             <!-- Comments Section -->
             <div id="comments-section" class="mt-12 bg-white/10 rounded-xl p-6 futuristic-bg">
-                <h2 class="text-2xl font-bold mb-4" data-i18n="comments">Comments</h2>
+                <h2 class="text-2xl font-bold mb-4">Comentários</h2>
                 <div class="mb-6">
                     <textarea id="comment-input" 
                         class="w-full bg-white/10 rounded-lg p-4 text-white resize-none h-32"
-                        data-i18n-placeholder="writeComment"></textarea>
+                        placeholder="Escreva seu comentário..."></textarea>
                 </div>
                 <button id="submit-comment" 
                     class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg
-                    transition-all duration-300 transform hover:scale-105" data-i18n="submit">
-                    Submit
+                    transition-all duration-300 transform hover:scale-105">
+                    Enviar
                 </button>
                 <div id="comments-container" class="mt-8 space-y-4"></div>
                 <button id="load-more" class="w-full py-3 mt-4 bg-blue-600/50 hover:bg-blue-600/70 
-                    rounded-lg backdrop-blur-sm transition-all duration-300 transform hover:scale-105 hidden" data-i18n="loadMore">
-                    Load More
+                    rounded-lg backdrop-blur-sm transition-all duration-300 transform hover:scale-105 hidden">
+                    Carregar Mais
                 </button>
             </div>
         </main>
@@ -192,96 +229,50 @@
         // Tool Categories with all tools
         const toolCategories = [
             {
-                category: 'Content Creation & Marketing',
+                category: 'Criação de Conteúdo & Marketing',
                 items: [
-                    { name: 'Bard', icon: 'fa-robot', link: 'https://bard.google.com/', likes: 0 },
-                    { name: 'Bing Chat', icon: 'fa-comments', link: 'https://www.bing.com/new', likes: 0 },
-                    { name: 'Jasper.ai', icon: 'fa-brain', link: 'https://www.jasper.ai/', likes: 0 },
-                    { name: 'Copy.ai', icon: 'fa-copy', link: 'https://www.copy.ai/', likes: 0 },
-                    { name: 'Rytr.me', icon: 'fa-pen', link: 'https://rytr.me/', likes: 0 },
-                    { name: 'Notion AI', icon: 'fa-lightbulb', link: 'https://www.notion.so/product/ai', likes: 0 },
-                    { name: 'Adobe Firefly', icon: 'fa-fire', link: 'https://www.adobe.com/sensei/generative-ai/firefly.html', likes: 0 },
-                    { name: 'Synthesia', icon: 'fa-video', link: 'https://www.synthesia.io/', likes: 0 },
-                    { name: 'Voicely', icon: 'fa-microphone', link: 'https://voicely.io/', likes: 0 },
-                    { name: 'Grammarly', icon: 'fa-spell-check', link: 'https://www.grammarly.com/', likes: 0 },
-                    { name: 'Social Blade', icon: 'fa-chart-line', link: 'https://socialblade.com/', likes: 0 },
-                    { name: 'Sorteio no Instagram', icon: 'fa-instagram', link: 'https://sorteionoinsta.com/', likes: 0 },
-                    { name: 'Who Unfollowed', icon: 'fa-user-minus', link: 'https://whounfollowedme.org/', likes: 0 },
-                    { name: 'Scribe', icon: 'fa-pencil-alt', link: 'https://scribehow.com/', likes: 0 }
+                    { name: 'Bard', icon: 'fa-robot', link: 'https://bard.google.com/' },
+                    { name: 'Bing Chat', icon: 'fa-comments', link: 'https://www.bing.com/new' },
+                    { name: 'Jasper.ai', icon: 'fa-brain', link: 'https://www.jasper.ai/' },
+                    { name: 'Copy.ai', icon: 'fa-copy', link: 'https://www.copy.ai/' },
+                    { name: 'Rytr.me', icon: 'fa-pen', link: 'https://rytr.me/' },
+                    { name: 'Notion AI', icon: 'fa-lightbulb', link: 'https://www.notion.so/product/ai' },
+                    { name: 'Adobe Firefly', icon: 'fa-fire', link: 'https://www.adobe.com/sensei/generative-ai/firefly.html' },
+                    { name: 'Synthesia', icon: 'fa-video', link: 'https://www.synthesia.io/' },
+                    { name: 'Voicely', icon: 'fa-microphone', link: 'https://voicely.io/' },
+                    { name: 'Grammarly', icon: 'fa-spell-check', link: 'https://www.grammarly.com/' },
+                    { name: 'Social Blade', icon: 'fa-chart-line', link: 'https://socialblade.com/' },
+                    { name: 'Sorteio no Instagram', icon: 'fa-instagram', link: 'https://sorteionoinsta.com/' },
+                    { name: 'Who Unfollowed', icon: 'fa-user-minus', link: 'https://whounfollowedme.org/' },
+                    { name: 'Scribe', icon: 'fa-pencil-alt', link: 'https://scribehow.com/' }
                 ]
             },
             {
-                category: 'Productivity Tools',
+                category: 'Ferramentas de Produtividade',
                 items: [
-                    { name: 'Todoist', icon: 'fa-check-square', link: 'https://todoist.com/', likes: 0 },
-                    { name: 'Pocket', icon: 'fa-bookmark', link: 'https://getpocket.com/', likes: 0 },
-                    { name: 'Mercury Reader', icon: 'fa-book-reader', link: 'https://mercury.postlight.com/reader/', likes: 0 },
-                    { name: 'Dark Reader', icon: 'fa-moon', link: 'https://darkreader.org/', likes: 0 },
-                    { name: 'Stylus', icon: 'fa-paint-brush', link: 'https://add0n.com/stylus.html', likes: 0 },
-                    { name: 'Momentum', icon: 'fa-clock', link: 'https://momentumdash.com/', likes: 0 },
-                    { name: 'OneTab', icon: 'fa-window-restore', link: 'https://www.one-tab.com/', likes: 0 },
-                    { name: 'Awesome Screenshot', icon: 'fa-camera', link: 'https://www.awesomescreenshot.com/', likes: 0 },
-                    { name: 'Video Speed Controller', icon: 'fa-forward', link: 'https://chrome.google.com/webstore/detail/video-speed-controller/nffaoalbilbmmfgbnbgppjihopabppdk', likes: 0 }
+                    { name: 'Todoist', icon: 'fa-check-square', link: 'https://todoist.com/' },
+                    { name: 'Pocket', icon: 'fa-bookmark', link: 'https://getpocket.com/' },
+                    { name: 'Mercury Reader', icon: 'fa-book-reader', link: 'https://mercury.postlight.com/reader/' },
+                    { name: 'Dark Reader', icon: 'fa-moon', link: 'https://darkreader.org/' },
+                    { name: 'Stylus', icon: 'fa-paint-brush', link: 'https://add0n.com/stylus.html' },
+                    { name: 'Momentum', icon: 'fa-clock', link: 'https://momentumdash.com/' },
+                    { name: 'OneTab', icon: 'fa-window-restore', link: 'https://www.one-tab.com/' },
+                    { name: 'Awesome Screenshot', icon: 'fa-camera', link: 'https://www.awesomescreenshot.com/' },
+                    { name: 'Video Speed Controller', icon: 'fa-forward', link: 'https://chrome.google.com/webstore/detail/video-speed-controller/nffaoalbilbmmfgbnbgppjihopabppdk' }
                 ]
             },
             {
-                category: 'Business Tools',
+                category: 'Ferramentas para Negócios',
                 items: [
-                    { name: 'Waseller', icon: 'fa-store', link: 'https://chromewebstore.google.com/detail/waseller-perder-vendas-no/illemhbijpiebjfilfmgebahaakajkpe', likes: 0 },
-                    { name: 'One Touch Plus', icon: 'fa-hand-pointer', link: 'https://chrome.google.com/webstore/detail/onetouchplus', likes: 0 },
-                    { name: 'Window Resizer', icon: 'fa-expand', link: 'https://chrome.google.com/webstore/detail/window-resizer/kkelicaakdanhinjdeammmilcgefonfh', likes: 0 },
-                    { name: 'Picture-in-Picture', icon: 'fa-tv', link: 'https://chrome.google.com/webstore/detail/picture-in-picture/jipdnfibhldikgcjhfnomkfpcebammkp', likes: 0 },
-                    { name: 'Buscapé', icon: 'fa-search-dollar', link: 'https://www.buscape.com.br/', likes: 0 },
-                    { name: 'GoFullPage', icon: 'fa-file-image', link: 'https://gofullpage.com/', likes: 0 }
+                    { name: 'Waseller', icon: 'fa-store', link: 'https://chromewebstore.google.com/detail/waseller-perder-vendas-no/illemhbijpiebjfilfmgebahaakajkpe' },
+                    { name: 'One Touch Plus', icon: 'fa-hand-pointer', link: 'https://chrome.google.com/webstore/detail/onetouchplus' },
+                    { name: 'Window Resizer', icon: 'fa-expand', link: 'https://chrome.google.com/webstore/detail/window-resizer/kkelicaakdanhinjdeammmilcgefonfh' },
+                    { name: 'Picture-in-Picture', icon: 'fa-tv', link: 'https://chrome.google.com/webstore/detail/picture-in-picture/jipdnfibhldikgcjhfnomkfpcebammkp' },
+                    { name: 'Buscapé', icon: 'fa-search-dollar', link: 'https://www.buscape.com.br/' },
+                    { name: 'GoFullPage', icon: 'fa-file-image', link: 'https://gofullpage.com/' }
                 ]
             }
         ];
-
-        // Translations
-        const translations = {
-            en: {
-                loading: "Loading...",
-                searchTools: "Search tools...",
-                toolHistory: "Tool History",
-                comments: "Comments",
-                writeComment: "Write your comment...",
-                submit: "Submit",
-                loadMore: "Load More",
-                editComment: "Edit",
-                deleteComment: "Delete",
-                commentUpdated: "Comment updated successfully",
-                commentDeleted: "Comment deleted successfully",
-                loginRequired: "Please login to perform this action"
-            },
-            es: {
-                loading: "Cargando...",
-                searchTools: "Buscar herramientas...",
-                toolHistory: "Historial de herramientas",
-                comments: "Comentarios",
-                writeComment: "Escribe tu comentario...",
-                submit: "Enviar",
-                loadMore: "Cargar más",
-                editComment: "Editar",
-                deleteComment: "Eliminar",
-                commentUpdated: "Comentario actualizado con éxito",
-                commentDeleted: "Comentario eliminado con éxito",
-                loginRequired: "Por favor, inicia sesión para realizar esta acción"
-            },
-            it: {
-                loading: "Caricamento...",
-                searchTools: "Cerca strumenti...",
-                toolHistory: "Cronologia strumenti",
-                comments: "Commenti",
-                writeComment: "Scrivi il tuo commento...",
-                submit: "Invia",
-                loadMore: "Carica altro",
-                editComment: "Modifica",
-                deleteComment: "Elimina",
-                commentUpdated: "Commento aggiornato con successo",
-                commentDeleted: "Commento eliminato con successo",
-                loginRequired: "Effettua il login per eseguire questa azione"
-            }
-        };
 
         // Notification System
         const NotificationSystem = {
@@ -293,6 +284,83 @@
                 setTimeout(() => {
                     notification.classList.remove('show');
                 }, duration);
+            }
+        };
+
+        // Auth System
+        const AuthSystem = {
+            init() {
+                const loginBtn = document.getElementById('login-btn');
+                const logoutBtn = document.getElementById('logout-btn');
+                const loginModal = document.getElementById('login-modal');
+                const loginForm = document.getElementById('login-form');
+
+                loginBtn.addEventListener('click', () => {
+                    loginModal.classList.add('active');
+                });
+
+                loginForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const username = document.getElementById('username').value;
+                    const password = document.getElementById('password').value;
+
+                    if (username && password) {
+                        this.login(username, password);
+                        loginModal.classList.remove('active');
+                        loginForm.reset();
+                    }
+                });
+
+                logoutBtn.addEventListener('click', () => this.logout());
+
+                // Check for existing session
+                this.checkSession();
+            },
+
+            login(username, password) {
+                // Simulate login - In production, this would validate against a backend
+                const user = {
+                    username,
+                    avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${username}`,
+                    likes: new Set()
+                };
+                localStorage.setItem('user', JSON.stringify(user));
+                this.updateUI(true);
+                NotificationSystem.show('Login realizado com sucesso!');
+            },
+
+            logout() {
+                localStorage.removeItem('user');
+                this.updateUI(false);
+                NotificationSystem.show('Logout realizado com sucesso!');
+                location.reload();
+            },
+
+            checkSession() {
+                const user = localStorage.getItem('user');
+                if (user) {
+                    this.updateUI(true);
+                }
+            },
+
+            updateUI(isLoggedIn) {
+                const loginBtn = document.getElementById('login-btn');
+                const userProfile = document.getElementById('user-profile');
+                const userName = document.getElementById('user-name');
+
+                if (isLoggedIn) {
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    loginBtn.classList.add('hidden');
+                    userProfile.classList.remove('hidden');
+                    userName.textContent = user.username;
+                } else {
+                    loginBtn.classList.remove('hidden');
+                    userProfile.classList.add('hidden');
+                }
+            },
+
+            isLoggedIn() {
+                return localStorage.getItem('user') !== null;
             }
         };
 
@@ -313,7 +381,6 @@
                     this.displayResults(results);
                 });
 
-                // Close search results when clicking outside
                 document.addEventListener('click', (e) => {
                     if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
                         searchResults.classList.add('hidden');
@@ -356,39 +423,62 @@
             }
         };
 
-        // Language System
-        const LanguageSystem = {
-            currentLang: 'en',
-
+        // Like System
+        const LikeSystem = {
             init() {
-                const select = document.getElementById('language-select');
-                select.addEventListener('change', (e) => {
-                    this.setLanguage(e.target.value);
-                });
-                
-                const savedLang = localStorage.getItem('language') || 'en';
-                select.value = savedLang;
-                this.setLanguage(savedLang);
+                this.loadLikes();
+                this.bindEvents();
             },
 
-            setLanguage(lang) {
-                this.currentLang = lang;
-                localStorage.setItem('language', lang);
-                this.updateTexts();
+            bindEvents() {
+                document.querySelectorAll('.like-button').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        if (!AuthSystem.isLoggedIn()) {
+                            NotificationSystem.show('Faça login para curtir ferramentas!');
+                            return;
+                        }
+
+                        const toolName = button.dataset.tool;
+                        this.toggleLike(toolName, button);
+                    });
+                });
             },
 
-            updateTexts() {
-                document.querySelectorAll('[data-i18n]').forEach(element => {
-                    const key = element.getAttribute('data-i18n');
-                    if (translations[this.currentLang][key]) {
-                        element.textContent = translations[this.currentLang][key];
-                    }
-                });
+            toggleLike(toolName, button) {
+                const user = JSON.parse(localStorage.getItem('user'));
+                if (!user.likes) user.likes = [];
 
-                document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
-                    const key = element.getAttribute('data-i18n-placeholder');
-                    if (translations[this.currentLang][key]) {
-                        element.placeholder = translations[this.currentLang][key];
+                const isLiked = user.likes.includes(toolName);
+                if (isLiked) {
+                    user.likes = user.likes.filter(name => name !== toolName);
+                    button.classList.remove('liked');
+                    NotificationSystem.show('Curtida removida!');
+                } else {
+                    user.likes.push(toolName);
+                    button.classList.add('liked');
+                    NotificationSystem.show('Ferramenta curtida!');
+                }
+
+                localStorage.setItem('user', JSON.stringify(user));
+                this.updateLikeUI();
+            },
+
+            loadLikes() {
+                const user = JSON.parse(localStorage.getItem('user') || '{"likes":[]}');
+                if (user.likes) {
+                    this.updateLikeUI();
+                }
+            },
+
+            updateLikeUI() {
+                const user = JSON.parse(localStorage.getItem('user') || '{"likes":[]}');
+                document.querySelectorAll('.like-button').forEach(button => {
+                    const toolName = button.dataset.tool;
+                    if (user.likes && user.likes.includes(toolName)) {
+                        button.classList.add('liked');
+                    } else {
+                        button.classList.remove('liked');
                     }
                 });
             }
@@ -409,7 +499,14 @@
                 const submitBtn = document.getElementById('submit-comment');
                 const loadMoreBtn = document.getElementById('load-more');
 
-                submitBtn.addEventListener('click', () => this.submitComment());
+                submitBtn.addEventListener('click', () => {
+                    if (!AuthSystem.isLoggedIn()) {
+                        NotificationSystem.show('Faça login para comentar!');
+                        return;
+                    }
+                    this.submitComment();
+                });
+
                 loadMoreBtn.addEventListener('click', () => this.loadMore());
             },
 
@@ -418,20 +515,15 @@
                 const text = input.value.trim();
 
                 if (!text) {
-                    NotificationSystem.show(translations[LanguageSystem.currentLang].writeComment);
+                    NotificationSystem.show('O comentário não pode estar vazio!');
                     return;
                 }
 
-                const userData = JSON.parse(localStorage.getItem('user'));
-                if (!userData) {
-                    NotificationSystem.show(translations[LanguageSystem.currentLang].loginRequired);
-                    return;
-                }
-
+                const user = JSON.parse(localStorage.getItem('user'));
                 const comment = {
                     id: Date.now(),
                     text,
-                    user: userData,
+                    user,
                     date: new Date().toISOString(),
                     likes: 0
                 };
@@ -440,28 +532,29 @@
                 this.saveComments();
                 this.renderComments();
                 input.value = '';
+                NotificationSystem.show('Comentário adicionado com sucesso!');
             },
 
             editComment(id) {
                 const comment = this.comments.find(c => c.id === id);
                 if (!comment) return;
 
-                const newText = prompt('Edit your comment:', comment.text);
+                const newText = prompt('Editar comentário:', comment.text);
                 if (newText && newText !== comment.text) {
                     comment.text = newText;
                     comment.edited = true;
                     this.saveComments();
                     this.renderComments();
-                    NotificationSystem.show(translations[LanguageSystem.currentLang].commentUpdated);
+                    NotificationSystem.show('Comentário atualizado!');
                 }
             },
 
             deleteComment(id) {
-                if (confirm('Are you sure you want to delete this comment?')) {
+                if (confirm('Tem certeza que deseja excluir este comentário?')) {
                     this.comments = this.comments.filter(c => c.id !== id);
                     this.saveComments();
                     this.renderComments();
-                    NotificationSystem.show(translations[LanguageSystem.currentLang].commentDeleted);
+                    NotificationSystem.show('Comentário excluído!');
                 }
             },
 
@@ -483,8 +576,8 @@
             },
 
             renderCommentCard(comment) {
-                const userData = JSON.parse(localStorage.getItem('user'));
-                const isOwner = userData && userData.username === comment.user.username;
+                const user = JSON.parse(localStorage.getItem('user'));
+                const isOwner = user && user.username === comment.user.username;
                 
                 return `
                     <div class="comment-card" data-id="${comment.id}">
@@ -497,7 +590,7 @@
                                     <h3 class="font-bold">${comment.user.username}</h3>
                                     <span class="text-sm opacity-70">
                                         ${new Date(comment.date).toLocaleString()}
-                                        ${comment.edited ? ' (edited)' : ''}
+                                        ${comment.edited ? ' (editado)' : ''}
                                     </span>
                                 </div>
                             </div>
@@ -596,16 +689,17 @@
 
         // Initialize everything when the document is loaded
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize systems
-            LanguageSystem.init();
+            // Initialize all systems
+            AuthSystem.init();
+            SearchSystem.init();
+            LikeSystem.init();
             CommentsSystem.init();
             HistorySystem.init();
-            SearchSystem.init();
 
-            // Loading screen with 12-second progression
+            // Loading screen
             let progress = 0;
             const loadingInterval = setInterval(() => {
-                progress += (100 / 120); // 12 seconds total
+                progress += (100 / 120);
                 document.getElementById('loading-bar').style.width = `${progress}%`;
                 
                 if (progress >= 100) {
@@ -617,17 +711,7 @@
                 }
             }, 100);
 
-            // Auto-login check
-            const savedUser = localStorage.getItem('user');
-            if (savedUser) {
-                const userData = JSON.parse(savedUser);
-                document.getElementById('user-profile').classList.remove('hidden');
-                document.getElementById('account-toggle').classList.add('hidden');
-                document.getElementById('user-avatar').src = userData.avatar;
-                document.getElementById('user-name').textContent = userData.username;
-            }
-
-            // Render tools with like buttons
+            // Render tools
             const toolsContainer = document.getElementById('tools-container');
             toolsContainer.innerHTML = toolCategories.map(category => `
                 <div class="bg-white/10 rounded-xl p-6 futuristic-bg tool-card glowing-border">
@@ -639,10 +723,9 @@
                                     class="tool-link flex items-center flex-grow" data-tool="${tool.name}">
                                     <i class="fas ${tool.icon} mr-4"></i>
                                     ${tool.name}
-                                </a>
+                                 </a>
                                 <button class="like-button" data-tool="${tool.name}">
                                     <i class="fas fa-thumbs-up"></i>
-                                    <span class="like-count ml-2">${tool.likes}</span>
                                 </button>
                             </div>
                         `).join('')}
@@ -651,17 +734,7 @@
             `).join('');
 
             // Initialize like buttons
-            document.querySelectorAll('.like-button').forEach(button => {
-                button.addEventListener('click', () => {
-                    const toolName = button.dataset.tool;
-                    const tool = toolCategories.flatMap(c => c.items).find(t => t.name === toolName);
-                    if (tool) {
-                        tool.likes++;
-                        button.classList.add('liked');
-                        button.querySelector('.like-count').textContent = tool.likes;
-                    }
-                });
-            });
+            LikeSystem.init();
         });
     </script>
 </body>
