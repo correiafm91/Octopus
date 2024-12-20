@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OctopusTools - Plataforma de Ferramentas de Negócios</title>
+    <title>Octopus Suite - Business Tools Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -51,27 +51,6 @@
         .notification.show {
             transform: translateX(0);
         }
-        .feedback-section {
-            margin-top: 3rem;
-            padding: 2rem;
-            background: rgba(255,255,255,0.05);
-            border-radius: 1rem;
-            backdrop-filter: blur(10px);
-        }
-        .emoji-picker {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            overflow-x: auto;
-            padding: 1rem;
-        }
-        .emoji-option {
-            cursor: pointer;
-            font-size: 2rem;
-            transition: transform 0.3s ease;
-            perspective: 1000px;
-            animation: float 3s ease-in-out infinite;
-        }
         .comment-card {
             background: rgba(255,255,255,0.05);
             border-radius: 0.5rem;
@@ -85,25 +64,66 @@
             background: rgba(255,255,255,0.1);
             transform: translateY(-2px);
         }
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotateY(0); }
-            50% { transform: translateY(-10px) rotateY(180deg); }
+        .like-button {
+            transition: all 0.3s ease;
+        }
+        .like-button:hover {
+            transform: scale(1.1);
+        }
+        .like-button.liked {
+            color: #3b82f6;
         }
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
+        }
+        @media (max-width: 768px) {
+            .tool-card {
+                margin-bottom: 1rem;
+            }
+            .comment-card {
+                margin: 0.5rem;
+            }
+        }
+        .language-selector {
+            position: fixed;
+            top: 20px;
+            right: 100px;
+            z-index: 1000;
+        }
+        #search-results {
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        .search-result-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .search-result-item:hover {
+            background: rgba(255,255,255,0.1);
         }
     </style>
 </head>
 <body>
     <!-- Loading Screen -->
     <div id="loading-screen" class="fixed inset-0 bg-gradient-to-br from-blue-900 via-blue-950 to-black flex flex-col items-center justify-center z-50">
-        <img src="https://via.placeholder.com/200" alt="OctopusTools Logo" class="w-32 h-32 rounded-full mb-4 animate-pulse">
-        <h1 class="text-3xl font-bold mb-4">OctopusTools</h1>
-        <div class="text-xl mb-4 loading-text">Só um momento</div>
+        <img src="https://i.postimg.cc/j2cBtbHC/A-2-D-minimalist-logo-a-purple-octopus-vivid-purples-and-deep-ultraviolet-hues-holding-a-laptop-dis.png" alt="Octopus Suite Logo" class="w-32 h-32 rounded-full mb-4 animate-pulse">
+        <h1 class="text-3xl font-bold mb-4">Octopus Suite</h1>
+        <div class="text-xl mb-4 loading-text" data-i18n="loading">Loading...</div>
         <div class="w-3/4 max-w-md bg-white/20 rounded-full h-4 overflow-hidden">
             <div id="loading-bar" class="bg-blue-500 h-full w-0 transition-all duration-1000"></div>
         </div>
+    </div>
+
+    <!-- Language Selector -->
+    <div class="language-selector">
+        <select id="language-select" class="bg-white/10 text-white px-4 py-2 rounded-lg">
+            <option value="en">English</option>
+            <option value="es">Español</option>
+            <option value="it">Italiano</option>
+        </select>
     </div>
 
     <!-- Notification -->
@@ -111,45 +131,21 @@
         <span id="notification-text"></span>
     </div>
 
-    <!-- Account Modal -->
-    <div id="account-modal" class="fixed top-4 left-4 hidden z-50">
-        <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 w-80 futuristic-bg">
-            <h2 class="text-2xl font-bold mb-6 text-center">Criar Conta</h2>
-            <form id="account-form" class="space-y-4">
-                <div>
-                    <label class="block mb-2">Nome de Usuário</label>
-                    <input type="text" name="username" required class="w-full bg-white/10 rounded-lg p-2 border border-white/20" placeholder="Seu nome de usuário">
-                </div>
-                <div>
-                    <label class="block mb-2">Senha</label>
-                    <input type="password" name="password" required class="w-full bg-white/10 rounded-lg p-2 border border-white/20" placeholder="Sua senha">
-                </div>
-                <div>
-                    <label class="block mb-2">Nome do Negócio</label>
-                    <input type="text" name="business" required class="w-full bg-white/10 rounded-lg p-2 border border-white/20" placeholder="Nome da sua empresa">
-                </div>
-                <div>
-                    <label class="block mb-2">Foto de Perfil</label>
-                    <input type="file" name="avatar" accept="image/*" required class="w-full bg-white/10 rounded-lg p-2 border border-white/20">
-                </div>
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg">
-                    Criar Conta
-                </button>
-            </form>
-        </div>
-    </div>
-
     <!-- Main Platform -->
     <div id="main-platform" class="hidden min-h-screen">
         <header class="p-4 flex justify-between items-center futuristic-bg">
-            <img src="https://via.placeholder.com/100" alt="OctopusTools Logo" class="w-16 h-16 rounded-full">
+            <div class="flex items-center">
+                <img src="https://i.postimg.cc/j2cBtbHC/A-2-D-minimalist-logo-a-purple-octopus-vivid-purples-and-deep-ultraviolet-hues-holding-a-laptop-dis.png" alt="Octopus Suite Logo" class="w-16 h-16 rounded-full">
+                <h1 class="ml-4 text-2xl font-bold">Octopus Suite</h1>
+            </div>
             <div class="relative w-1/2">
-                <input type="text" id="search-input" placeholder="Buscar ferramentas..." 
-                    class="w-full bg-white/10 px-4 py-2 rounded-full text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="search-input" data-i18n-placeholder="searchTools" 
+                    class="w-full bg-white/10 px-4 py-2 rounded-full text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Search tools...">
                 <div id="search-results" class="absolute top-full left-0 w-full bg-white/10 backdrop-blur-lg rounded-b-xl mt-1 hidden"></div>
             </div>
             <div id="user-profile" class="hidden flex items-center gap-4">
-                <img src="" alt="Perfil" id="user-avatar" class="w-10 h-10 rounded-full">
+                <img src="" alt="Profile" id="user-avatar" class="w-10 h-10 rounded-full cursor-pointer">
                 <span id="user-name" class="text-white"></span>
             </div>
             <button id="account-toggle" class="bg-white/10 p-2 rounded-full hover:bg-white/20">
@@ -158,207 +154,320 @@
         </header>
 
         <main class="p-8">
-            <div id="tools-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div id="tools-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Tools will be dynamically inserted here -->
             </div>
 
-            <!-- Feedback Section -->
-            <div id="feedback-section" class="mt-12"></div>
+            <!-- Tool History -->
+            <div id="tool-history" class="mt-12 bg-white/10 rounded-xl p-6 futuristic-bg">
+                <h2 class="text-2xl font-bold mb-4" data-i18n="toolHistory">Tool History</h2>
+                <div id="history-container" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <!-- History items will be inserted here -->
+                </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div id="comments-section" class="mt-12 bg-white/10 rounded-xl p-6 futuristic-bg">
+                <h2 class="text-2xl font-bold mb-4" data-i18n="comments">Comments</h2>
+                <div class="mb-6">
+                    <textarea id="comment-input" 
+                        class="w-full bg-white/10 rounded-lg p-4 text-white resize-none h-32"
+                        data-i18n-placeholder="writeComment"></textarea>
+                </div>
+                <button id="submit-comment" 
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg
+                    transition-all duration-300 transform hover:scale-105" data-i18n="submit">
+                    Submit
+                </button>
+                <div id="comments-container" class="mt-8 space-y-4"></div>
+                <button id="load-more" class="w-full py-3 mt-4 bg-blue-600/50 hover:bg-blue-600/70 
+                    rounded-lg backdrop-blur-sm transition-all duration-300 transform hover:scale-105 hidden" data-i18n="loadMore">
+                    Load More
+                </button>
+            </div>
         </main>
     </div>
 
     <script>
-        // Tool Categories
+        // Tool Categories with all tools
         const toolCategories = [
             {
-                category: 'Criação, Edição de Conteúdo e Marketing',
+                category: 'Content Creation & Marketing',
                 items: [
-                    { name: 'Bard', icon: 'fa-robot', link: 'https://bard.google.com/' },
-                    { name: 'Bing Chat', icon: 'fa-comments', link: 'https://www.bing.com/new' },
-                    { name: 'Jasper.ai', icon: 'fa-pen', link: 'https://www.jasper.ai/' },
-                    { name: 'Copy.ai', icon: 'fa-copy', link: 'https://www.copy.ai/' },
-                    { name: 'Rytr.me', icon: 'fa-pencil', link: 'https://rytr.me/' },
-                    { name: 'Notion AI', icon: 'fa-brain', link: 'https://www.notion.so/product/ai' },
-                    { name: 'Adobe Firefly', icon: 'fa-wand-magic-sparkles', link: 'https://www.adobe.com/sensei/generative-ai/firefly.html' },
-                    { name: 'Synthesia', icon: 'fa-video', link: 'https://www.synthesia.io/' },
-                    { name: 'Voicely', icon: 'fa-microphone', link: 'https://voicely.io/' },
-                    { name: 'Grammarly', icon: 'fa-spell-check', link: 'https://www.grammarly.com/' },
-                    { name: 'Scribe', icon: 'fa-pen-to-square', link: 'https://scribehow.com/' }
+                    { name: 'Bard', icon: 'fa-robot', link: 'https://bard.google.com/', likes: 0 },
+                    { name: 'Bing Chat', icon: 'fa-comments', link: 'https://www.bing.com/new', likes: 0 },
+                    { name: 'Jasper.ai', icon: 'fa-brain', link: 'https://www.jasper.ai/', likes: 0 },
+                    { name: 'Copy.ai', icon: 'fa-copy', link: 'https://www.copy.ai/', likes: 0 },
+                    { name: 'Rytr.me', icon: 'fa-pen', link: 'https://rytr.me/', likes: 0 },
+                    { name: 'Notion AI', icon: 'fa-lightbulb', link: 'https://www.notion.so/product/ai', likes: 0 },
+                    { name: 'Adobe Firefly', icon: 'fa-fire', link: 'https://www.adobe.com/sensei/generative-ai/firefly.html', likes: 0 },
+                    { name: 'Synthesia', icon: 'fa-video', link: 'https://www.synthesia.io/', likes: 0 },
+                    { name: 'Voicely', icon: 'fa-microphone', link: 'https://voicely.io/', likes: 0 },
+                    { name: 'Grammarly', icon: 'fa-spell-check', link: 'https://www.grammarly.com/', likes: 0 },
+                    { name: 'Social Blade', icon: 'fa-chart-line', link: 'https://socialblade.com/', likes: 0 },
+                    { name: 'Sorteio no Instagram', icon: 'fa-instagram', link: 'https://sorteionoinsta.com/', likes: 0 },
+                    { name: 'Who Unfollowed', icon: 'fa-user-minus', link: 'https://whounfollowedme.org/', likes: 0 },
+                    { name: 'Scribe', icon: 'fa-pencil-alt', link: 'https://scribehow.com/', likes: 0 }
                 ]
             },
             {
-                category: 'Produtividade Pessoal',
+                category: 'Productivity Tools',
                 items: [
-                    { name: 'Notion AI', icon: 'fa-brain', link: 'https://www.notion.so/product/ai' },
-                    { name: 'Todoist', icon: 'fa-check-square', link: 'https://todoist.com/' },
-                    { name: 'Pocket', icon: 'fa-bookmark', link: 'https://getpocket.com/' },
-                    { name: 'Grammarly', icon: 'fa-spell-check', link: 'https://www.grammarly.com/' },
-                    { name: 'Dark Reader', icon: 'fa-moon', link: 'https://darkreader.org/' },
-                    { name: 'Stylus', icon: 'fa-paintbrush', link: 'https://add0n.com/stylus.html' },
-                    { name: 'Momentum', icon: 'fa-clock', link: 'https://momentumdash.com/' },
-                    { name: 'OneTab', icon: 'fa-window-restore', link: 'https://www.one-tab.com/' },
-                    { name: 'Awesome Screenshot', icon: 'fa-camera', link: 'https://www.awesomescreenshot.com/' },
-                    { name: 'Video Speed Controller', icon: 'fa-forward', link: 'https://chrome.google.com/webstore/detail/video-speed-controller/nffaoalbilbmmfgbnbgppjihopabppdk' }
+                    { name: 'Todoist', icon: 'fa-check-square', link: 'https://todoist.com/', likes: 0 },
+                    { name: 'Pocket', icon: 'fa-bookmark', link: 'https://getpocket.com/', likes: 0 },
+                    { name: 'Mercury Reader', icon: 'fa-book-reader', link: 'https://mercury.postlight.com/reader/', likes: 0 },
+                    { name: 'Dark Reader', icon: 'fa-moon', link: 'https://darkreader.org/', likes: 0 },
+                    { name: 'Stylus', icon: 'fa-paint-brush', link: 'https://add0n.com/stylus.html', likes: 0 },
+                    { name: 'Momentum', icon: 'fa-clock', link: 'https://momentumdash.com/', likes: 0 },
+                    { name: 'OneTab', icon: 'fa-window-restore', link: 'https://www.one-tab.com/', likes: 0 },
+                    { name: 'Awesome Screenshot', icon: 'fa-camera', link: 'https://www.awesomescreenshot.com/', likes: 0 },
+                    { name: 'Video Speed Controller', icon: 'fa-forward', link: 'https://chrome.google.com/webstore/detail/video-speed-controller/nffaoalbilbmmfgbnbgppjihopabppdk', likes: 0 }
+                ]
+            },
+            {
+                category: 'Business Tools',
+                items: [
+                    { name: 'Waseller', icon: 'fa-store', link: 'https://chromewebstore.google.com/detail/waseller-perder-vendas-no/illemhbijpiebjfilfmgebahaakajkpe', likes: 0 },
+                    { name: 'One Touch Plus', icon: 'fa-hand-pointer', link: 'https://chrome.google.com/webstore/detail/onetouchplus', likes: 0 },
+                    { name: 'Window Resizer', icon: 'fa-expand', link: 'https://chrome.google.com/webstore/detail/window-resizer/kkelicaakdanhinjdeammmilcgefonfh', likes: 0 },
+                    { name: 'Picture-in-Picture', icon: 'fa-tv', link: 'https://chrome.google.com/webstore/detail/picture-in-picture/jipdnfibhldikgcjhfnomkfpcebammkp', likes: 0 },
+                    { name: 'Buscapé', icon: 'fa-search-dollar', link: 'https://www.buscape.com.br/', likes: 0 },
+                    { name: 'GoFullPage', icon: 'fa-file-image', link: 'https://gofullpage.com/', likes: 0 }
                 ]
             }
         ];
+
+        // Translations
+        const translations = {
+            en: {
+                loading: "Loading...",
+                searchTools: "Search tools...",
+                toolHistory: "Tool History",
+                comments: "Comments",
+                writeComment: "Write your comment...",
+                submit: "Submit",
+                loadMore: "Load More",
+                editComment: "Edit",
+                deleteComment: "Delete",
+                commentUpdated: "Comment updated successfully",
+                commentDeleted: "Comment deleted successfully",
+                loginRequired: "Please login to perform this action"
+            },
+            es: {
+                loading: "Cargando...",
+                searchTools: "Buscar herramientas...",
+                toolHistory: "Historial de herramientas",
+                comments: "Comentarios",
+                writeComment: "Escribe tu comentario...",
+                submit: "Enviar",
+                loadMore: "Cargar más",
+                editComment: "Editar",
+                deleteComment: "Eliminar",
+                commentUpdated: "Comentario actualizado con éxito",
+                commentDeleted: "Comentario eliminado con éxito",
+                loginRequired: "Por favor, inicia sesión para realizar esta acción"
+            },
+            it: {
+                loading: "Caricamento...",
+                searchTools: "Cerca strumenti...",
+                toolHistory: "Cronologia strumenti",
+                comments: "Commenti",
+                writeComment: "Scrivi il tuo commento...",
+                submit: "Invia",
+                loadMore: "Carica altro",
+                editComment: "Modifica",
+                deleteComment: "Elimina",
+                commentUpdated: "Commento aggiornato con successo",
+                commentDeleted: "Commento eliminato con successo",
+                loginRequired: "Effettua il login per eseguire questa azione"
+            }
+        };
 
         // Notification System
         const NotificationSystem = {
             show(message, duration = 3000) {
                 const notification = document.getElementById('notification');
-                const notificationText = document.getElementById('notification-text');
-                notificationText.textContent = message;
+                const text = document.getElementById('notification-text');
+                text.textContent = message;
                 notification.classList.add('show');
-                setTimeout(() => notification.classList.remove('show'), duration);
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, duration);
             }
         };
 
-        // Account System
-        const AccountSystem = {
+        // Search System
+        const SearchSystem = {
             init() {
-                const form = document.getElementById('account-form');
-                form.addEventListener('submit', this.handleSubmit.bind(this));
-                this.loadUserProfile();
-            },
-
-            handleSubmit(e) {
-                e.preventDefault();
-                const formData = new FormData(e.target);
-                const avatarFile = formData.get('avatar');
+                const searchInput = document.getElementById('search-input');
+                const searchResults = document.getElementById('search-results');
                 
-                if (avatarFile) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const userData = {
-                            username: formData.get('username'),
-                            business: formData.get('business'),
-                            avatar: e.target.result
-                        };
-                        localStorage.setItem('user', JSON.stringify(userData));
-                        this.loadUserProfile();
-                        document.getElementById('account-modal').classList.add('hidden');
-                        NotificationSystem.show('Conta criada com sucesso!');
-                    };
-                    reader.readAsDataURL(avatarFile);
-                }
+                searchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.toLowerCase();
+                    if (query.length < 2) {
+                        searchResults.classList.add('hidden');
+                        return;
+                    }
+
+                    const results = this.searchTools(query);
+                    this.displayResults(results);
+                });
+
+                // Close search results when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                        searchResults.classList.add('hidden');
+                    }
+                });
             },
 
-            loadUserProfile() {
-                const userData = JSON.parse(localStorage.getItem('user'));
-                if (userData) {
-                    document.getElementById('user-profile').classList.remove('hidden');
-                    document.getElementById('account-toggle').classList.add('hidden');
-                    document.getElementById('user-avatar').src = userData.avatar;
-                    document.getElementById('user-name').textContent = userData.username;
+            searchTools(query) {
+                const results = [];
+                toolCategories.forEach(category => {
+                    category.items.forEach(tool => {
+                        if (tool.name.toLowerCase().includes(query)) {
+                            results.push({ ...tool, category: category.category });
+                        }
+                    });
+                });
+                return results;
+            },
+
+            displayResults(results) {
+                const searchResults = document.getElementById('search-results');
+                if (results.length === 0) {
+                    searchResults.classList.add('hidden');
+                    return;
                 }
+
+                searchResults.innerHTML = results.map(tool => `
+                    <div class="search-result-item">
+                        <a href="${tool.link}" target="_blank" class="flex items-center text-white">
+                            <i class="fas ${tool.icon} mr-3"></i>
+                            <div>
+                                <div>${tool.name}</div>
+                                <div class="text-sm text-white/60">${tool.category}</div>
+                            </div>
+                        </a>
+                    </div>
+                `).join('');
+
+                searchResults.classList.remove('hidden');
             }
         };
 
-        // Feedback System
-        const FeedbackSystem = {
-            emojis: ['😊', '🚀', '💡', '🎯', '⭐', '🔥', '💪', '👏', '❤️', '🌟'],
+        // Language System
+        const LanguageSystem = {
+            currentLang: 'en',
+
+            init() {
+                const select = document.getElementById('language-select');
+                select.addEventListener('change', (e) => {
+                    this.setLanguage(e.target.value);
+                });
+                
+                const savedLang = localStorage.getItem('language') || 'en';
+                select.value = savedLang;
+                this.setLanguage(savedLang);
+            },
+
+            setLanguage(lang) {
+                this.currentLang = lang;
+                localStorage.setItem('language', lang);
+                this.updateTexts();
+            },
+
+            updateTexts() {
+                document.querySelectorAll('[data-i18n]').forEach(element => {
+                    const key = element.getAttribute('data-i18n');
+                    if (translations[this.currentLang][key]) {
+                        element.textContent = translations[this.currentLang][key];
+                    }
+                });
+
+                document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                    const key = element.getAttribute('data-i18n-placeholder');
+                    if (translations[this.currentLang][key]) {
+                        element.placeholder = translations[this.currentLang][key];
+                    }
+                });
+            }
+        };
+
+        // Comments System
+        const CommentsSystem = {
             comments: [],
             page: 1,
             perPage: 10,
 
             init() {
-                this.container = document.getElementById('feedback-section');
-                this.renderFeedbackSection();
-                this.bindEvents();
                 this.loadComments();
-            },
-
-            renderFeedbackSection() {
-                this.container.innerHTML = `
-                    <div class="feedback-section">
-                        <h2 class="text-2xl font-bold mb-6">Feedback</h2>
-                        <div class="emoji-picker">
-                            ${this.emojis.map(emoji => `
-                                <div class="emoji-option" data-emoji="${emoji}">${emoji}</div>
-                            `).join('')}
-                        </div>
-                        <div class="mb-6">
-                            <textarea id="feedback-text" 
-                                class="w-full bg-white/10 rounded-lg p-4 text-white resize-none h-32"
-                                placeholder="Compartilhe sua experiência..."></textarea>
-                        </div>
-                        <button id="submit-feedback" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg
-                            transition-all duration-300 transform hover:scale-105">
-                            Enviar Feedback
-                        </button>
-                        <div id="comments-container" class="mt-8 space-y-4"></div>
-                        <button id="load-more" class="w-full py-3 mt-4 bg-blue-600/50 hover:bg-blue-600/70 
-                            rounded-lg backdrop-blur-sm transition-all duration-300 transform hover:scale-105 hidden">
-                            Carregar mais comentários
-                        </button>
-                    </div>
-                `;
+                this.bindEvents();
             },
 
             bindEvents() {
-                const submitBtn = document.getElementById('submit-feedback');
+                const submitBtn = document.getElementById('submit-comment');
                 const loadMoreBtn = document.getElementById('load-more');
-                const emojiPicker = document.querySelector('.emoji-picker');
-                
-                let selectedEmoji = '';
-                
-                emojiPicker.addEventListener('click', (e) => {
-                    if (e.target.classList.contains('emoji-option')) {
-                        document.querySelectorAll('.emoji-option').forEach(emoji => 
-                            emoji.style.transform = 'scale(1)');
-                        e.target.style.transform = 'scale(1.2)';
-                        selectedEmoji = e.target.dataset.emoji;
-                    }
-                });
 
-                submitBtn.addEventListener('click', () => {
-                    const text = document.getElementById('feedback-text').value;
-                    if (!text.trim()) {
-                        NotificationSystem.show('Por favor, escreva um comentário');
-                        return;
-                    }
-                    
-                    const userData = JSON.parse(localStorage.getItem('user'));
-                    if (!userData) {
-                        NotificationSystem.show('Faça login para enviar feedback');
-                        return;
-                    }
-
-                    const comment = {
-                        id: Date.now(),
-                        text,
-                        emoji: selectedEmoji,
-                        user: {
-                            name: userData.username,
-                            avatar: userData.avatar
-                        },
-                        date: new Date().toISOString()
-                    };
-
-                    this.comments.unshift(comment);
-                    this.saveComments();
-                    this.renderComments();
-                    document.getElementById('feedback-text').value = '';
-                    NotificationSystem.show('Feedback enviado com sucesso!');
-                });
-
-                loadMoreBtn.addEventListener('click', () => {
-                    this.page++;
-                    this.renderComments();
-                });
+                submitBtn.addEventListener('click', () => this.submitComment());
+                loadMoreBtn.addEventListener('click', () => this.loadMore());
             },
 
-            formatDate(dateString) {
-                const date = new Date(dateString);
-                return new Intl.DateTimeFormat('pt-BR', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                }).format(date);
+            submitComment() {
+                const input = document.getElementById('comment-input');
+                const text = input.value.trim();
+
+                if (!text) {
+                    NotificationSystem.show(translations[LanguageSystem.currentLang].writeComment);
+                    return;
+                }
+
+                const userData = JSON.parse(localStorage.getItem('user'));
+                if (!userData) {
+                    NotificationSystem.show(translations[LanguageSystem.currentLang].loginRequired);
+                    return;
+                }
+
+                const comment = {
+                    id: Date.now(),
+                    text,
+                    user: userData,
+                    date: new Date().toISOString(),
+                    likes: 0
+                };
+
+                this.comments.unshift(comment);
+                this.saveComments();
+                this.renderComments();
+                input.value = '';
+            },
+
+            editComment(id) {
+                const comment = this.comments.find(c => c.id === id);
+                if (!comment) return;
+
+                const newText = prompt('Edit your comment:', comment.text);
+                if (newText && newText !== comment.text) {
+                    comment.text = newText;
+                    comment.edited = true;
+                    this.saveComments();
+                    this.renderComments();
+                    NotificationSystem.show(translations[LanguageSystem.currentLang].commentUpdated);
+                }
+            },
+
+            deleteComment(id) {
+                if (confirm('Are you sure you want to delete this comment?')) {
+                    this.comments = this.comments.filter(c => c.id !== id);
+                    this.saveComments();
+                    this.renderComments();
+                    NotificationSystem.show(translations[LanguageSystem.currentLang].commentDeleted);
+                }
+            },
+
+            loadMore() {
+                this.page++;
+                this.renderComments();
             },
 
             renderComments() {
@@ -367,28 +476,51 @@
                 const end = this.page * this.perPage;
                 const commentsToShow = this.comments.slice(start, end);
                 
-                container.innerHTML = commentsToShow.map(comment => `
-                    <div class="comment-card">
-                        <div class="flex items-center gap-4 mb-3">
-                            <img src="${comment.user.avatar}" 
-                                alt="${comment.user.name}" 
-                                class="w-12 h-12 rounded-full object-cover">
-                            <div>
-                                <h3 class="font-bold">${comment.user.name}</h3>
-                                <span class="text-sm opacity-70">${this.formatDate(comment.date)}</span>
+                container.innerHTML = commentsToShow.map(comment => this.renderCommentCard(comment)).join('');
+                
+                document.getElementById('load-more').classList.toggle('hidden', 
+                    this.comments.length <= end);
+            },
+
+            renderCommentCard(comment) {
+                const userData = JSON.parse(localStorage.getItem('user'));
+                const isOwner = userData && userData.username === comment.user.username;
+                
+                return `
+                    <div class="comment-card" data-id="${comment.id}">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-4">
+                                <img src="${comment.user.avatar}" 
+                                    alt="${comment.user.username}" 
+                                    class="w-12 h-12 rounded-full object-cover">
+                                <div>
+                                    <h3 class="font-bold">${comment.user.username}</h3>
+                                    <span class="text-sm opacity-70">
+                                        ${new Date(comment.date).toLocaleString()}
+                                        ${comment.edited ? ' (edited)' : ''}
+                                    </span>
+                                </div>
                             </div>
-                            ${comment.emoji ? `<span class="text-2xl">${comment.emoji}</span>` : ''}
+                            ${isOwner ? `
+                                <div class="flex gap-2">
+                                    <button onclick="CommentsSystem.editComment(${comment.id})"
+                                        class="text-sm text-blue-400 hover:text-blue-300">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button onclick="CommentsSystem.deleteComment(${comment.id})"
+                                        class="text-sm text-red-400 hover:text-red-300">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            ` : ''}
                         </div>
                         <p class="text-white/90">${comment.text}</p>
                     </div>
-                `).join('');
-
-                const loadMoreBtn = document.getElementById('load-more');
-                loadMoreBtn.classList.toggle('hidden', this.comments.length <= end);
+                `;
             },
 
             loadComments() {
-                const saved = localStorage.getItem('feedback-comments');
+                const saved = localStorage.getItem('comments');
                 if (saved) {
                     this.comments = JSON.parse(saved);
                     this.renderComments();
@@ -396,91 +528,139 @@
             },
 
             saveComments() {
-                localStorage.setItem('feedback-comments', JSON.stringify(this.comments));
+                localStorage.setItem('comments', JSON.stringify(this.comments));
             }
         };
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            const mainPlatform = document.getElementById('main-platform');
-            const toolsContainer = document.getElementById('tools-container');
-            const searchInput = document.getElementById('search-input');
-            const searchResults = document.getElementById('search-results');
-            const accountToggle = document.getElementById('account-toggle');
-            const accountModal = document.getElementById('account-modal');
+        // Tool History System
+        const HistorySystem = {
+            history: [],
+            
+            init() {
+                this.loadHistory();
+                this.bindEvents();
+            },
 
-            // Initialize loading screen
+            addToHistory(tool) {
+                const existingIndex = this.history.findIndex(t => t.name === tool.name);
+                if (existingIndex !== -1) {
+                    this.history.splice(existingIndex, 1);
+                }
+                this.history.unshift(tool);
+                if (this.history.length > 9) this.history.pop();
+                this.saveHistory();
+                this.renderHistory();
+            },
+
+            bindEvents() {
+                document.querySelectorAll('.tool-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        const toolName = e.currentTarget.dataset.tool;
+                        const tool = this.findTool(toolName);
+                        if (tool) this.addToHistory(tool);
+                    });
+                });
+            },
+
+            findTool(name) {
+                for (const category of toolCategories) {
+                    const tool = category.items.find(t => t.name === name);
+                    if (tool) return tool;
+                }
+                return null;
+            },
+
+            renderHistory() {
+                const container = document.getElementById('history-container');
+                container.innerHTML = this.history.map(tool => `
+                    <a href="${tool.link}" target="_blank" 
+                        class="flex items-center p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-all">
+                        <i class="fas ${tool.icon} mr-3"></i>
+                        <span>${tool.name}</span>
+                    </a>
+                `).join('');
+            },
+
+            loadHistory() {
+                const saved = localStorage.getItem('tool-history');
+                if (saved) {
+                    this.history = JSON.parse(saved);
+                    this.renderHistory();
+                }
+            },
+
+            saveHistory() {
+                localStorage.setItem('tool-history', JSON.stringify(this.history));
+            }
+        };
+
+        // Initialize everything when the document is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize systems
+            LanguageSystem.init();
+            CommentsSystem.init();
+            HistorySystem.init();
+            SearchSystem.init();
+
+            // Loading screen with 12-second progression
             let progress = 0;
             const loadingInterval = setInterval(() => {
-                progress += 11.11;
+                progress += (100 / 120); // 12 seconds total
                 document.getElementById('loading-bar').style.width = `${progress}%`;
                 
                 if (progress >= 100) {
                     clearInterval(loadingInterval);
                     setTimeout(() => {
                         document.getElementById('loading-screen').classList.add('hidden');
-                        mainPlatform.classList.remove('hidden');
+                        document.getElementById('main-platform').classList.remove('hidden');
                     }, 500);
                 }
-            }, 300);
+            }, 100);
 
-            // Render tools
+            // Auto-login check
+            const savedUser = localStorage.getItem('user');
+            if (savedUser) {
+                const userData = JSON.parse(savedUser);
+                document.getElementById('user-profile').classList.remove('hidden');
+                document.getElementById('account-toggle').classList.add('hidden');
+                document.getElementById('user-avatar').src = userData.avatar;
+                document.getElementById('user-name').textContent = userData.username;
+            }
+
+            // Render tools with like buttons
+            const toolsContainer = document.getElementById('tools-container');
             toolsContainer.innerHTML = toolCategories.map(category => `
                 <div class="bg-white/10 rounded-xl p-6 futuristic-bg tool-card glowing-border">
                     <h2 class="text-2xl font-bold mb-4">${category.category}</h2>
                     <div class="space-y-4">
                         ${category.items.map(tool => `
-                            <a href="${tool.link}" target="_blank" 
-                                class="flex items-center hover:bg-white/20 p-2 rounded transition">
-                                <i class="fas ${tool.icon} mr-4"></i>
-                                ${tool.name}
-                            </a>
+                            <div class="flex items-center justify-between hover:bg-white/20 p-2 rounded transition">
+                                <a href="${tool.link}" target="_blank" 
+                                    class="tool-link flex items-center flex-grow" data-tool="${tool.name}">
+                                    <i class="fas ${tool.icon} mr-4"></i>
+                                    ${tool.name}
+                                </a>
+                                <button class="like-button" data-tool="${tool.name}">
+                                    <i class="fas fa-thumbs-up"></i>
+                                    <span class="like-count ml-2">${tool.likes}</span>
+                                </button>
+                            </div>
                         `).join('')}
                     </div>
                 </div>
             `).join('');
 
-            // Initialize search
-            searchInput.addEventListener('input', () => {
-                const query = searchInput.value.toLowerCase();
-                const allTools = toolCategories.flatMap(category => 
-                    category.items.map(tool => ({...tool, category: category.category}))
-                );
-
-                const matchedTools = allTools.filter(tool => 
-                    tool.name.toLowerCase().includes(query) || 
-                    tool.category.toLowerCase().includes(query)
-                );
-
-                if (query && matchedTools.length > 0) {
-                    searchResults.innerHTML = matchedTools.map(tool => `
-                        <a href="${tool.link}" target="_blank" class="block p-2 hover:bg-white/10">
-                            <i class="fas ${tool.icon} mr-2"></i>
-                            ${tool.name} (${tool.category})
-                        </a>
-                    `).join('');
-                    searchResults.classList.remove('hidden');
-                } else {
-                    searchResults.classList.add('hidden');
-                }
-            });
-
-            // Initialize account system
-            AccountSystem.init();
-
-            // Initialize feedback system
-            FeedbackSystem.init();
-
-            // Account modal toggle
-            accountToggle.addEventListener('click', () => {
-                accountModal.classList.toggle('hidden');
-            });
-
-            // Hide search results when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
-                    searchResults.classList.add('hidden');
-                }
+            // Initialize like buttons
+            document.querySelectorAll('.like-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const toolName = button.dataset.tool;
+                    const tool = toolCategories.flatMap(c => c.items).find(t => t.name === toolName);
+                    if (tool) {
+                        tool.likes++;
+                        button.classList.add('liked');
+                        button.querySelector('.like-count').textContent = tool.likes;
+                    }
+                });
             });
         });
     </script>
