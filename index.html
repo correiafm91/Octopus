@@ -737,5 +737,102 @@
             LikeSystem.init();
         });
     </script>
+ <body>
+  <body>
+  <!-- Botão de Chatbot -->
+  <div id="chatbot-button"
+       style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; 
+              border-radius: 50%; background-color: #3b82f6; display: flex; align-items: center; 
+              justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); cursor: pointer; z-index: 1000; overflow: hidden;">
+    <img src="https://i.postimg.cc/Fsx23pZR/c3679308-68ad-4e0c-b2dc-9bc7bb63a725-removebg-preview.png" 
+         alt="Chatbot" 
+         style="width: 50px; height: 50px; border-radius: 50%;">
+  </div>
+
+  <!-- Notificação do Chatbot -->
+  <div id="chatbot-notification"
+       style="position: fixed; bottom: 90px; right: 20px; background-color: #f87171; 
+              padding: 10px 15px; border-radius: 12px; font-size: 14px; font-weight: bold; 
+              color: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 1001; display: none;">
+    Vamos descobrir a ferramenta ideal pra você?
+  </div>
+
+  <!-- Chatbot Iframe -->
+  <div id="chatbot-container" 
+       style="position: fixed; bottom: 20px; right: 20px; width: 400px; height: 600px; 
+              display: none; z-index: 1002; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+    <!-- Botão de Fechar -->
+    <button id="close-chatbot"
+            style="position: absolute; top: -10px; right: -10px; width: 30px; height: 30px; 
+                   border: none; background-color: red; color: white; border-radius: 50%; 
+                   font-size: 16px; cursor: pointer; z-index: 1002;">×</button>
+    <!-- Iframe -->
+    <iframe id="chatbot-iframe"
+            src="https://platform.zaia.app/embed/chat/19948"
+            style="width: 100%; height: 100%; border: none; border-radius: 20px;">
+    </iframe>
+  </div>
+
+  <!-- Adicionando som -->
+  <audio id="notification-sound">
+    <source src="https://www.soundjay.com/button/beep-07.wav" type="audio/wav">
+  </audio>
+
+  <style>
+    /* Animação de pulso */
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.2);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    /* Classe para ativar a animação */
+    .pulse-animation {
+      animation: pulse 0.4s ease-in-out;
+    }
+  </style>
+
+  <script>
+    window.addEventListener('load', () => {
+      const chatbotButton = document.getElementById('chatbot-button');
+      const chatbotContainer = document.getElementById('chatbot-container');
+      const closeChatbotButton = document.getElementById('close-chatbot');
+      const chatbotNotification = document.getElementById('chatbot-notification');
+      const notificationSound = document.getElementById('notification-sound');
+
+      // Mostrar notificação e tocar som após carregamento
+      setTimeout(() => {
+        chatbotNotification.style.display = 'block';
+        notificationSound.play();
+
+        // Ocultar notificação automaticamente após 5 segundos
+        setTimeout(() => {
+          chatbotNotification.style.display = 'none';
+        }, 5000);
+      }, 1000); // Mostra a notificação 1 segundo após carregar a página
+
+      // Mostrar o chatbot ao clicar no botão inicial
+      chatbotButton.addEventListener('click', () => {
+        chatbotContainer.style.display = 'block';
+
+        // Adicionar animação de pulso no clique
+        chatbotButton.classList.add('pulse-animation');
+        setTimeout(() => chatbotButton.classList.remove('pulse-animation'), 400); // Remover após 0.4s
+      });
+
+      // Esconder o chatbot ao clicar no botão de fechar
+      closeChatbotButton.addEventListener('click', () => {
+        chatbotContainer.style.display = 'none';
+      });
+    });
+  </script>
+</body>
+
 </body>
 </html>
